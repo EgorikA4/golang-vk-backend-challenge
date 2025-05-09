@@ -1,0 +1,3 @@
+env: dev
+grpc:
+  port: 8001

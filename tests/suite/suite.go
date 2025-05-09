@@ -5,7 +5,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang-vk-backend-challenge/subpub"
+	"github.com/golang-vk-backend-challenge/internal/services/subpub"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

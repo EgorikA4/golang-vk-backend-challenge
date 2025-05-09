@@ -8,9 +8,10 @@ import (
 	"testing"
 	"time"
 
-	"github.com/golang-vk-backend-challenge/subpub"
+	"github.com/golang-vk-backend-challenge/internal/services/subpub"
 	"github.com/golang-vk-backend-challenge/tests/suite"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -37,6 +38,15 @@ func TestSubscribe(t *testing.T) {
 	assert.Len(t, st.Subpub.Topics, 1)
 	assert.Len(t, st.Subpub.Topics[defaultTopic], 1)
 	assert.Equal(t, sub, st.Subpub.Topics[defaultTopic][0])
+}
+
+func TestSubscribeOnEmptySubject(t *testing.T) {
+	st := suite.NewSuite(t)
+	defer st.Cleanup()
+
+	_, err := st.Subpub.Subscribe("", func(msg any) {})
+	require.Error(t, err)
+	assert.ErrorIs(t, err, subpub.ErrEmptySubject)
 }
 
 func TestSubscribe_DuplicateTopic(t *testing.T) {
@@ -97,7 +107,7 @@ func TestPublish_UnknownTopic(t *testing.T) {
 
 	err := st.Subpub.Publish("unknown", "msg")
 	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "subject: unknown does not exist")
+	assert.ErrorIs(t, err, subpub.ErrUnknownSubject)
 }
 
 func TestUnsubscribe(t *testing.T) {

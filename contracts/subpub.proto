@@ -1,10 +1,10 @@
-import "google/protobuf/empty.proto";
-
 syntax = "proto3";
 
 package subpub;
 
-option go_package = "subpubv1";
+option go_package = "./;subpubv1";
+
+import "google/protobuf/empty.proto";
 
 service SubPub {
     rpc Subscribe(SubscribeRequest) returns (stream Event);

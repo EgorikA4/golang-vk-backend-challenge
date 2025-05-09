@@ -2,12 +2,19 @@ package subpub
 
 import (
 	"context"
-	"fmt"
+	"errors"
 	"sync"
 	"sync/atomic"
 )
 
-const buffSize = 5
+const (
+	buffSize = 5
+)
+
+var (
+	ErrUnknownSubject = errors.New("unknown subject")
+	ErrEmptySubject   = errors.New("subject is empty")
+)
 
 type MessageHandler func(msg any)
 
@@ -50,6 +57,10 @@ func (sp *SubPub) Subscribe(subject string, cb MessageHandler) (*Subscription, e
 	sp.mu.Lock()
 	defer sp.mu.Unlock()
 
+	if subject == "" {
+		return nil, ErrEmptySubject
+	}
+
 	subscription := NewSubscription(buffSize, cb)
 	sp.Topics[subject] = append(sp.Topics[subject], subscription)
 	return subscription, nil
@@ -61,8 +72,7 @@ func (sp *SubPub) Publish(subject string, msg any) error {
 
 	subscriptions, ok := sp.Topics[subject]
 	if !ok {
-		// TODO: вынести в константы сообщение об ошибке
-		return fmt.Errorf("subject: %s does not exist", subject)
+		return ErrUnknownSubject
 	}
 
 	for _, subscription := range subscriptions {
